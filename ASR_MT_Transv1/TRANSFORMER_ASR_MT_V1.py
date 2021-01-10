@@ -70,8 +70,7 @@ class Transformer(nn.Module):
                 #### read feature matrices 
                 smp_feat=kaldi_io.read_mat(feat_path)
                 print(smp_feat.shape)
-                #if args.apply_cmvn:
-                if 1:
+                if args.apply_cmvn:
                        smp_feat=CMVN(smp_feat)
  
                 input=torch.from_numpy(smp_feat)
