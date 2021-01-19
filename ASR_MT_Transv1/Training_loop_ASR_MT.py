@@ -55,12 +55,13 @@ def train_val_model(**kwargs):
         cost=Decoder_out_dict.get('cost')
         ###training with accumilating gradients
         if trainflag:
+                cost=cost/args.accm_grad
                 cost.backward()
+
                 if args.clip_grad_norm != 0:
                         torch.nn.utils.clip_grad_norm_(model.parameters(),args.clip_grad_norm)
-                cost=cost/args.accm_grad
-                cost.detach()   
 
+                cost.detach()   
                 ###gradient accumilation
                 if(smp_no%args.accm_grad)==0:
                     optimizer.step()

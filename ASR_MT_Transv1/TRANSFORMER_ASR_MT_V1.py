@@ -88,10 +88,7 @@ class Transformer(nn.Module):
                  
                 MT_encoder_padded_outputs, *_ = self.MT_encoder(ASR_output_dict.get('dec_output'))
                 MT_output_dict = self.MT_decoder.recognize_batch_beam_autoreg_LM_multi_hyp(ASR_output_dict,MT_encoder_padded_outputs,args.beam,args.Am_weight,args.gamma,args.LM_model,args.len_pen,args)
-                
-                #breakpoint()    
-                
-                            
+                 
                 #Picking the best
                 nbest_hyps = MT_output_dict.get('ys')
                 scoring_list = MT_output_dict.get('score_1')
@@ -117,8 +114,6 @@ class Transformer(nn.Module):
                    
                     #new_hyp['Text_seq'] = self.MT_decoder.get_charecters_for_sequences(nbest_hyps[I])
                     new_hyp['Text_seq'] = self.MT_decoder.get_charecters_for_sequences(nbest_hyps[I],self.MT_decoder.Tgt_model,self.MT_decoder.pad_index,self.MT_decoder.eos_id,self.MT_decoder.word_unk)
-
-
 
                     new_hyp['state'] = hyp['state']
                     new_hyp['alpha_i_list'] = hyp['alpha_i_list']
