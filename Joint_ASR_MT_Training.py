@@ -69,7 +69,7 @@ def main():
         model,optimizer=Initialize_Att_model(args)
         #============================================================
         #------------------------------------------------------------  
-        train_gen = DataLoader(files=glob.glob(args.data_dir + "train_scp"),
+        train_gen = DataLoader(files=glob.glob(args.data_dir + "train_splits/*"),
                                 max_batch_label_len=args.max_batch_label_len,
                                 max_batch_len=args.max_batch_len,
                                 max_feat_len=args.max_feat_len,
@@ -77,14 +77,13 @@ def main():
                                 Src_model=Src_model,
                                 Tgt_model=Tgt_model)    
 
-        dev_gen = DataLoader(files=glob.glob(args.data_dir + "dev_scp"),
+        dev_gen = DataLoader(files=glob.glob(args.data_dir + "dev_splits/*"),
                                 max_batch_label_len=20000,
                                 max_batch_len=args.max_batch_len,
                                 max_feat_len=args.max_feat_len,
                                 max_label_len=args.max_label_len,
                                 Src_model=Src_model,
                                 Tgt_model=Tgt_model)
-
 
         #Flags that may change while training 
         val_history=np.zeros(args.nepochs)
@@ -93,7 +92,9 @@ def main():
             ##start of the epoch
             tr_CER=[]; tr_BPE_CER=[]; L_train_cost=[]
             model.train();
-            for trs_no in range(args.validate_interval):
+            validate_interval = int(args.validate_interval * args.accm_grad) if args.accm_grad>0 else args.validate_interval
+            for trs_no in range(validate_interval):
+
                 B1 = train_gen.next()
                 assert B1 is not None, "None should never come out of the DataLoader"
                 Output_trainval_dict=train_val_model(smp_no=trs_no,
@@ -177,13 +178,18 @@ def main():
             with open(args.Res_text_file,'a+') as Res_saving_file:
                 print(float(mean(Vl_CER)), file=Res_saving_file)
             #=================================
-             # early_stopping and checkpoint averaging:                    
+            # early_stopping and checkpoint averaging:                    
             if args.early_stopping:
                  A=val_history
                  Non_zero_loss=A[A>0]
                  min_cpts=np.argmin(Non_zero_loss)
                  Non_zero_len=len(Non_zero_loss)
-                 if (Non_zero_len-min_cpts) > args.early_stopping_patience:                                
+
+                 if ((Non_zero_len-min_cpts)>1):
+                                weight_noise_flag=True
+                                spec_aug_flag=True
+
+                 if (Non_zero_len-min_cpts) > args.early_stopping_patience:
                     print("The model is early stopping........","minimum value of model is:",min_cpts)
                     exit(0)
 

@@ -21,7 +21,7 @@ def Initialize_Att_model(args):
         optimizer = optim.Adam(params=trainable_parameters,lr=args.learning_rate,betas=(0.9, 0.99))
 
         #optimizer with warmup_steps
-        optimizer=TransformerOptimizer(optimizer=optimizer,k=args.lr_scale, d_model=args.decoder_dmodel, warmup_steps=args.warmup_steps)
+        optimizer=TransformerOptimizer(optimizer=optimizer,k=args.lr_scale, d_model=args.decoder_dmodel, step_num=args.step_num, warmup_steps=args.warmup_steps)
 
         pre_trained_weight=args.pre_trained_weight
         weight_flag=pre_trained_weight.split('/')[-1]

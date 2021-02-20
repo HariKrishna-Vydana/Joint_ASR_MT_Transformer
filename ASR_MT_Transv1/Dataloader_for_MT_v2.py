@@ -99,6 +99,8 @@ class DataLoader(object):
         while True:
             self.__reset_the_data_holders()
             max_batch_label_len = self.max_batch_label_len
+            random.shuffle(self.files)
+
             for inp_file in self.files:
                 with open(inp_file) as f:
                     for line in f:
@@ -108,23 +110,33 @@ class DataLoader(object):
                         ####this is mostly for the joint model 
                         ###usuvally MT setup will not have scp so just fill the space with the default vallues
 
-                        
+                        #breakpoint()
                         ##assigining
                         key = split_lines[0]
                         scp_path = split_lines[1] #will be 'None' fo MT setup
+                        scp_path = 'None' if scp_path == '' else scp_path
                         #============================
                         ### Char labels
                         #============================
 
                         src_text = split_lines[3] 
                         src_tok = split_lines[4] 
-                        src_tok = [int(i) for i in src_tok.split(' ')]  
+
+                        if len(src_tok)>0:
+                            src_tok = [int(i) for i in src_tok.split(' ')]
+                        else:
+                                continue;                        
                         #============================
                         ##Word models
                         #============================
                         tgt_text = split_lines[5]
                         tgt_tok = split_lines[6]
-                        tgt_tok = [int(i) for i in tgt_tok.split(' ')]  
+                       
+                         
+                        if len(tgt_tok)>0:
+                            tgt_tok = [int(i) for i in tgt_tok.split(' ')]
+                        else:
+                                continue;
                         #============================
                         ### text 
                         #============================
@@ -135,6 +147,7 @@ class DataLoader(object):
                         Tgt_Words_Text = tgt_text.split(' ')
                         #--------------------------
                         if not (scp_path == 'None'):
+                            #breakpoint()
                             mat = kaldi_io.read_mat(scp_path)
                              
                             if self.apply_cmvn:
@@ -142,7 +155,7 @@ class DataLoader(object):
                                 
                             ####pruning the Acoustic features based on length ###for joint model
                             if (mat.shape[0]>self.max_feat_len) or (len(Src_tokens) > self.max_label_len):
-                                print("key,mat.shape,Src_Words_Text,Src_tokens,self.max_label_len",key,mat.shape,len(Src_Words_Text),len(Src_tokens),self.max_label_len)
+                                #print("key,mat.shape,Src_Words_Text,Src_tokens,self.max_label_len",key,mat.shape,len(Src_Words_Text),len(Src_tokens),self.max_label_len)
                                 continue;
                         else:
                             mat=np.zeros((100,249),dtype=np.float32)
@@ -151,7 +164,7 @@ class DataLoader(object):
                             ### should be  removed
                             ###
                             if (len(Src_tokens) > self.max_feat_len) or (len(Tgt_tokens) > self.max_label_len):
-                                print("key,Src_tokens, self.max_feat_len, Tgt_tokens, self.max_label_len",key,len(Src_tokens), self.max_feat_len, len(Tgt_tokens), self.max_label_len)
+                                #print("key,Src_tokens, self.max_feat_len, Tgt_tokens, self.max_label_len",key,len(Src_tokens), self.max_feat_len, len(Tgt_tokens), self.max_label_len)
                                 continue;
 
                         #--------------------------
@@ -178,10 +191,11 @@ class DataLoader(object):
                         # total_labels_in_batch is used to keep track of the length of sequences in a batch, just make sure it does not overflow the gpu
                         ##in general lstm training we are not using this because self.max_batch_len will be around 10-20 and self.max_batch_label_len is usuvally set very high     
                         #-------------------------------------------------------------------------------
-                        if not (scp_path == 'None'):
-                            expect_len_of_features=max(max(self.batch_Src_length,default=0),mat.shape[0])
+                        if (scp_path != 'None'):
+                            expect_len_of_features=max(max(self.batch_Src_length,default=0)/4,mat.shape[0]/4)
                             expect_len_of_labels=max(max(self.batch_Tgt_label_length,default=0),len(Tgt_tokens))
                             total_labels_in_batch= (expect_len_of_features + expect_len_of_labels)*(len(self.batch_names)+4)
+                            total_labels_in_batch = int(total_labels_in_batch)
                         else:
                             expect_len_of_features=max(max(self.batch_Src_label_length,default=0),len(Src_tokens))
                             expect_len_of_labels=max(max(self.batch_Tgt_label_length,default=0),len(Tgt_tokens))

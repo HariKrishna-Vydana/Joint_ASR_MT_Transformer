@@ -162,11 +162,6 @@ def get_Bleu_for_beam(scp_paths_decoding,key,Src_tokens,Src_text,Tgt_tokens,Tgt_
         #-----------------------------------
        
         if True_label:
-
-                # if Text_seq_formatted.strip():
-                #     CER = compute_cer(Text_seq_formatted, True_label,'doesnot_matter')*100
-                # else:
-
                 CER = None
                 hyp_value = Text_seq_formatted 
                 ref_value = True_label

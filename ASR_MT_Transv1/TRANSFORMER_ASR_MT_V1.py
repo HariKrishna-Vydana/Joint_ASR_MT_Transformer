@@ -81,7 +81,8 @@ class Transformer(nn.Module):
         
                 #Jointly-Trained Transformer ASR model 
                 Decoder_output_dict_init = {'ys':None, 'score_1':None, 'dec_output':None}
-
+                
+                breakpoint()
                 conv_padded_Src_seq = self.conv_layers(input)
                 encoder_padded_outputs, *_ = self.ASR_encoder(conv_padded_Src_seq)
                 ASR_output_dict = self.ASR_decoder.recognize_batch_beam_autoreg_LM_multi_hyp(Decoder_output_dict_init, encoder_padded_outputs,args.beam,args.Am_weight,args.gamma,args.LM_model,args.len_pen,args) 
@@ -133,15 +134,17 @@ class Transformer(nn.Module):
 class TransformerOptimizer(object):
     """A simple wrapper class for learning rate scheduling"""
 
-    def __init__(self, optimizer, k, d_model, warmup_steps=4000):
+    def __init__(self, optimizer, k, d_model,step_num,warmup_steps=4000):
         self.optimizer = optimizer
         self.k = k
         
-        #present_lr=[param_group['lr'] for param_group in self.optimizer.param_groups]
+
         self.init_lr = d_model ** (-0.5)
         self.warmup_steps = warmup_steps
-        self.step_num = 0
+
+        self.step_num = step_num
         self.reduction_factor=1
+
     def zero_grad(self):
         self.optimizer.zero_grad()
 

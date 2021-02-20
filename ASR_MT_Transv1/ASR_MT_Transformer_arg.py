@@ -62,16 +62,11 @@ parser.add_argument("--decoder_dropout_MT",metavar='',type=float,default='0.1',h
 parser.add_argument("--decoder_ff_dropout_MT",metavar='',type=float,default='0.3',help="decoder_ff_dropout ")
 parser.add_argument("--decoder_layers_MT",metavar='',type=int,default='4',help="decoder_layers ")
 parser.add_argument("--tie_dec_emb_weights_MT",metavar='',type=int,default=0,help="tie_dec_emb_weights")
-
-
 #---------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------
-
-
-
 parser.add_argument("--learning_rate",metavar='',type=float,default='0.0003',help="Value of learning_rate ")
 parser.add_argument("--lr_scale",metavar='',type=float,default='1',help="Value of lr_scale ")
-
+parser.add_argument("--step_num",metavar='',type=int,default=1,help="step_num")
 parser.add_argument("--clip_grad_norm",metavar='',type=float,default='0',help="Value of clip_grad_norm ")
 parser.add_argument("--accm_grad",metavar='',type=float,default='2',help="Value of gradient accumilation, workaround against using larger batch size ")
 parser.add_argument("--new_bob_decay",metavar='',type=int,default='0',help="Value of new_bob_decay ") ###remove
@@ -112,13 +107,19 @@ parser.add_argument("--max_label_len",metavar='',type=int,default='200',help="ma
 parser.add_argument("--plot_fig_validation",metavar='',type=int,default=0,help="True|False Not yet implementd")
 parser.add_argument("--plot_fig_training",metavar='',type=int,default=0,help="True|False Not yet implementd")
 
-
-
+#**********************************
+#**********************************
+#Spec Aug
+parser.add_argument("--spec_aug_flag",metavar='',type=int,default=0,help="spec_aug_flag")
+parser.add_argument("--min_F_bands",metavar='',type=int,default='30',help="min_F_bands")
+parser.add_argument("--max_F_bands",metavar='',type=int,default='80',help="max_F_bands")
+parser.add_argument("--time_drop_max",metavar='',type=int,default='4',help="time_drop_max")
+parser.add_argument("--time_window_max",metavar='',type=int,default='4',help="time_window_max")
 #**********************************
 #---------------------------
+
+#---------------------------
 ####paths and tokenizers
-
-
 parser.add_argument("--data_dir",metavar='',type=str,default='/mnt/matylda3/vydana/HOW2_EXP/MT_Transformer/models/Default_folder',help="")
 parser.add_argument("--src_text_file",metavar='',type=str,default='/mnt/matylda3/vydana/HOW2_EXP/MT_Transformer/Tokenizers/full_text_id.en',help="")
 parser.add_argument("--tgt_text_file",metavar='',type=str,default='/mnt/matylda3/vydana/HOW2_EXP/MT_Transformer/Tokenizers/full_text_id.pt',help="")
@@ -143,8 +144,6 @@ parser.add_argument("--weight_text_file",metavar='',type=str,default='weight_fol
 parser.add_argument("--Res_text_file",metavar='',type=str,default='weight_folder/weight_file_res',help="Res_file")
 #----------------------------
 parser.add_argument("--MT_flag",metavar='',type=int,default=0,help="MT_flag")
-
-
 
 
 ####decoding_parameters

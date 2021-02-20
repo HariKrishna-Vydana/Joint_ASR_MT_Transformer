@@ -17,6 +17,8 @@ from utils__ import plotting,read_as_list
 from user_defined_losses import compute_cer
 from Decoding_loop import get_Bleu_for_beam
 from Load_Encode_sp_model import Load_Encode_sp_model
+from get_best_weights import get_best_weights
+
 #**********
 from TRANSFORMER_ASR_MT_V1 import Transformer
 from Initializing_Transformer_ASR_MT import Initialize_Att_model
@@ -56,9 +58,10 @@ def main():
         ###make SWA name 
         model_name = str(args.model_dir).split('/')[-1]
         ct=model_name+'_SWA_random_tag_'+str(args.SWA_random_tag)
-
+        
         ##check the Weight averaged file and if the file does not exist then lcreate them
         ## if the file exists load them
+        
         if not isfile(join(args.model_dir,ct)):
             model_names,checkpoint_ter = get_best_weights(args.weight_text_file,args.Res_text_file)
             model_names_checkpoints=model_names[:args.early_stopping_checkpoints]
@@ -118,26 +121,25 @@ def main():
             Src_tokens = Load_Encode_sp_model(args.Src_model_path,Src_text)
             Tgt_tokens = Load_Encode_sp_model(args.Tgt_model_path,Tgt_text)
         
-        #breakpoint()
         #print(scp_paths_decoding, key, Src_tokens, Src_text, Tgt_tokens, Tgt_text, model, plot_path)
         get_Bleu_for_beam(scp_paths_decoding, key, Src_tokens, Src_text, Tgt_tokens, Tgt_text, model, plot_path, args)
 
 #--------------------------------
-def get_best_weights(weight_text_file,Res_text_file):
-        #
-        weight_list=read_as_list(weight_text_file)
-        ERROR_list=read_as_list(weight_text_file+'_Res')
-        weight_acc_dict = dict(zip(ERROR_list,weight_list))
-       
-        sorted_weight_acc_dict = sorted(weight_acc_dict.items(), key=lambda x: x[0],reverse=False)
-        check_points_list = sorted_weight_acc_dict
-
-       
-        model_names=[W[1] for W in check_points_list]
-        checkpoint_ter=[W[0] for W in check_points_list]
-        round_checkpoint_ter=[str(round(float(N),2)) for N in checkpoint_ter]
-        #print('checkpoint_TER,checkpoint_names',round_checkpoint_ter,model_names)
-        return model_names,checkpoint_ter
+#def get_best_weights(weight_text_file,Res_text_file):
+#        #
+#        weight_list=read_as_list(weight_text_file)
+#        ERROR_list=read_as_list(weight_text_file+'_Res')
+#        weight_acc_dict = dict(zip(ERROR_list,weight_list))
+#       
+#        sorted_weight_acc_dict = sorted(weight_acc_dict.items(), key=lambda x: x[0],reverse=False)
+#        check_points_list = sorted_weight_acc_dict
+#
+#       
+#        model_names=[W[1] for W in check_points_list]
+#        checkpoint_ter=[W[0] for W in check_points_list]
+#        round_checkpoint_ter=[str(round(float(N),2)) for N in checkpoint_ter]
+#        #print('checkpoint_TER,checkpoint_names',round_checkpoint_ter,model_names)
+#        return model_names,checkpoint_ter
 
 #--------------------------------
 
