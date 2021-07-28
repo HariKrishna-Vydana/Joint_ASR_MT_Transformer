@@ -8,9 +8,9 @@ import math
 import pdb 
 from torch.autograd import Variable
 
-from Trans_conv_layers import Conv_2D_Layers
-from Trans_utilities import get_attn_key_pad_mask, get_subsequent_mask, get_attn_pad_mask_encoder, get_attn_pad_mask,get_encoder_non_pad_mask, get_decoder_non_pad_mask
-from Trans_MHA import MultiHeadAttention, PositionwiseFeedForward, PositionalEncoding
+from ASR_MT_Transv1.Trans_conv_layers import Conv_2D_Layers
+from ASR_MT_Transv1.Trans_utilities import get_attn_key_pad_mask, get_subsequent_mask, get_attn_pad_mask_encoder, get_attn_pad_mask,get_encoder_non_pad_mask, get_decoder_non_pad_mask
+from ASR_MT_Transv1.Trans_MHA import MultiHeadAttention, PositionwiseFeedForward, PositionalEncoding
 
 #=============================================================================================================
 #-------------------------------------------------------------------------------------------------------------

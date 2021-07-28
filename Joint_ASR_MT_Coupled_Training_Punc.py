@@ -47,10 +47,10 @@ if args.gpu:
     Set_gpu()
 ###----------------------------------------
 #==============================================================
-from Dataloader_for_MT_v2 import DataLoader
-from TRANSFORMER_ASR_MT_V1 import Transformer
-from Initializing_Transformer_ASR_MT import Initialize_Att_model
-from Training_loop_ASR_MT import train_val_model
+from Dataloader_for_MT_v2_Punc import DataLoader
+#from TRANSFORMER_ASR_MT_V2 import Transformer
+from Initializing_Transformer_ASR_MT_Punc import Initialize_Att_model
+from Training_loop_ASR_MT_Punc import train_val_model
 from Load_sp_model import Load_sp_models
 #==============================================================
 if not isdir(args.model_dir):
@@ -67,6 +67,9 @@ def main():
         Tgt_model=Load_sp_models(args.Tgt_model_path)
         ###initilize the model
         model,optimizer=Initialize_Att_model(args)
+        ct='___initialized_punc__'
+        torch.save(model.state_dict(),join(args.model_dir,str(ct)))
+        exit(0)
         #============================================================
         #------------------------------------------------------------  
         train_gen = DataLoader(files=glob.glob(args.data_dir + "train_splits/*"),

@@ -39,12 +39,15 @@ class Transformer(nn.Module):
     def forward(self,padded_Src_speech,padded_Src_seq,padded_Tgt_seq):
 
         ##check ASR_MT model
-        ###conv layers
-        #General Transformer MT model
-        conv_padded_Src_seq = self.conv_layers(padded_Src_speech)
-        encoder_padded_outputs, *_ = self.ASR_encoder(conv_padded_Src_seq)
-        #-----------------------------------------------------
-
+        if (torch.eq(padded_Src_speech.sum(),0):
+                encoder_padded_outputs = padded_Src_speech
+        else:
+                ###conv layers
+                #General Transformer MT model
+                conv_padded_Src_seq = self.conv_layers(padded_Src_speech)
+                encoder_padded_outputs, *_ = self.ASR_encoder(conv_padded_Src_seq)
+        #-----------------------------------------------------                
+      
         ASR_output_dict = self.ASR_decoder(padded_Src_seq, encoder_padded_outputs)
         #print(ASR_output_dict.get('dec_output').shape)
         
@@ -62,7 +65,6 @@ class Transformer(nn.Module):
     def predict(self,feat_path,args):
         print("went to the decoder loop")
         with torch.no_grad():
-
 
                 print(feat_path) 
                 #### read feature matrices 

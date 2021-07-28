@@ -9,7 +9,7 @@ from torch import optim
 sys.path.insert(0,'/mnt/matylda3/vydana/HOW2_EXP/Joint_ASR_MT_Transformer')
 
 
-from ASR_MT_Transv1.TRANSFORMER_ASR_MT_V1 import Transformer,TransformerOptimizer
+from ASR_MT_Transv1.TRANSFORMER_ASR_MT_V2 import Transformer,TransformerOptimizer
 from ASR_MT_Transv1.utils__ import count_parameters
 #====================================================================================
 def Initialize_Att_model(args):

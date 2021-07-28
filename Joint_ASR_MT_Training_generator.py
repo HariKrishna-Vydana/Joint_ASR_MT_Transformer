@@ -28,6 +28,9 @@ plt.switch_backend('agg')
 matplotlib.pyplot.viridis()
 import glob
 
+import time
+
+
 #*************************************************************************************************************************
 ####### Loading the Parser and default arguments
 sys.path.insert(0,'/mnt/matylda3/vydana/HOW2_EXP/Joint_ASR_MT_Transformer/ASR_MT_Transv1')
@@ -47,7 +50,7 @@ if args.gpu:
     Set_gpu()
 ###----------------------------------------
 #==============================================================
-from Dataloader_for_MT_v2 import DataLoader
+from Dataloader_for_MT_v4 import DataLoader
 from TRANSFORMER_ASR_MT_V1 import Transformer
 from Initializing_Transformer_ASR_MT import Initialize_Att_model
 from Training_loop_ASR_MT import train_val_model
@@ -60,7 +63,7 @@ def main():
         Src_model=Load_sp_models(args.Src_model_path)
         Tgt_model=Load_sp_models(args.Tgt_model_path)
         ###initilize the model
-        
+        start = time.perf_counter()        
         #============================================================#train_splits $dev_splits
         #------------------------------------------------------------ 
         train_gen = DataLoader(files=glob.glob(args.data_dir + "train_splits/*"),
@@ -71,21 +74,37 @@ def main():
                                 Src_model=Src_model,
                                 Tgt_model=Tgt_model)    
 
-        #Flags that may change while training 
-        for i in range(100000):
+        #Flags that may change while training
+        print('before for loop') 
+        for i in range(1000):
             B1 = train_gen.next()
             assert B1 is not None, "None should never come out of the DataLoader"
             #print(B1.keys())
             smp_Src_data = B1.get('smp_Src_data')
+
+            time.sleep(0.1)
+            #breakpoint()
             smp_Src_labels = B1.get('smp_Src_labels')
-            smp_Tgt_labels = B1.get('smp_Tgt_labels')
-        
+            smp_Tgt_labels = B1.get('smp_Tgt_labels') 
             ###for future
             smp_Src_Text = B1.get('smp_Src_Text') 
-            smp_Tgt_Text = B1.get('smp_Tgt_Text')  
-            print('i :====>',i,smp_Src_data.shape,smp_Src_labels.shape,smp_Tgt_labels.shape,smp_Src_Text.shape,smp_Tgt_Text.shape)
+            smp_Tgt_Text = B1.get('smp_Tgt_Text')
+            
+
+            smp_Src_labels_tc = B1.get('smp_Src_labels_tc')
+            smp_Src_Text_tc = B1.get('smp_Src_Text_tc')
+ 
+            smp_src_data = torch.from_numpy(smp_Src_data).float()
+            MT_utterances = torch.sum(torch.sum(smp_src_data,dim=1,keepdim=True),dim=2,keepdim=True)==0
+            #print('i :====>',i,smp_Src_data,smp_Src_labels,smp_Tgt_labels,smp_Src_Text,smp_Tgt_Text,smp_Src_labels_tc,smp_Src_Text_tc)
+            print('i :====>',i,smp_Src_data.shape)    
             # print('i :====>',i, "smp_Src_data,smp_Src_labels,smp_Tgt_labels,smp_Src_Text,smp_Tgt_Text",smp_Src_data.shape,smp_Src_labels.shape,smp_Tgt_labels.shape,smp_Src_Text.shape,smp_Tgt_Text.shape)#,smp_Src_data[0],smp_Src_labels[0],smp_Tgt_labels[0],smp_Src_Text[0],smp_Tgt_Text[0])
         #======================================
+
+
+        finish=time.perf_counter()
+        print(f'Finished in {round(finish-start,2)} secound(s)')
+        exit(0)
 #=======================================================
 #=============================================================================================
 if __name__ == '__main__':

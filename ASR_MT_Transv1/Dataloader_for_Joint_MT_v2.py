@@ -13,12 +13,12 @@ from threading  import Thread
 import random
 import glob
 
-import sys 
+import sys
 sys.path.insert(0, '/mnt/matylda3/vydana/HOW2_EXP/Joint_ASR_MT_Transformer')
 from ASR_MT_Transv1.CMVN import CMVN
 from ASR_MT_Transv1.Load_sp_model import Load_sp_models
 #===============================================
-#-----------------------------------------------
+#-----------------------------------------------  
 class DataLoader(object):
 
     def __init__(self,files, max_batch_label_len, max_batch_len, max_feat_len, max_label_len, Src_model, Tgt_model, queue_size=100,apply_cmvn=1):
@@ -66,6 +66,9 @@ class DataLoader(object):
 
         self.batch_Tgt_text=[]
         self.batch_Tgt_text_length=[]
+
+
+
     
     #---------------------------------------------------------------------
     def make_batching_dict(self):
@@ -121,10 +124,6 @@ class DataLoader(object):
                         src_text = split_lines[3] 
                         src_tok = split_lines[4] 
 
-                        if 'None' in src_tok:
-                            continue;
-
-
                         if len(src_tok)>0:
                             src_tok = [int(i) for i in src_tok.split(' ')]
                         else:
@@ -135,10 +134,7 @@ class DataLoader(object):
                         tgt_text = split_lines[5]
                         tgt_tok = split_lines[6]
                        
-                        
-                        if 'None' in tgt_tok: 
-                            continue;
-
+                         
                         if len(tgt_tok)>0:
                             tgt_tok = [int(i) for i in tgt_tok.split(' ')]
                         else:
@@ -151,12 +147,6 @@ class DataLoader(object):
 
                         Src_Words_Text = src_text.split(' ')
                         Tgt_Words_Text = tgt_text.split(' ')
-                        #--------------------------
-                        #breakpoint()
-                        
-
-
-
                         #--------------------------
                         if not (scp_path == 'None'):
                             #breakpoint()

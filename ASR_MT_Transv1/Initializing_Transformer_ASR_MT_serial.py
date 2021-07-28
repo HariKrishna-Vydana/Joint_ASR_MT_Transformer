@@ -3,7 +3,7 @@ import sys
 import os
 from os.path import join, isdir
 import torch
-from torch import optim
+from torch import optim, nn
 
 
 sys.path.insert(0,'/mnt/matylda3/vydana/HOW2_EXP/Joint_ASR_MT_Transformer')
@@ -33,8 +33,14 @@ def Initialize_Att_model(args):
                 print("Loading the model with the weights form:",pre_trained_weight)
                 weight_file=pre_trained_weight.split('/')[-1]
                 weight_path="/".join(pre_trained_weight.split('/')[:-1])
+                        
                 enc_weight=join(weight_path,weight_file)
-                model.load_state_dict(torch.load(enc_weight, map_location=lambda storage, loc: storage),strict=True)                
+
+                enc_weight_state_dict=torch.load(enc_weight, map_location=lambda storage, loc: storage)
+                model=nn.DataParallel(model)
+                model.load_state_dict(torch.load(enc_weight, map_location=lambda storage, loc: storage),strict=True)
+                #model.load_state_dict(torch.load(enc_weight, map_location=lambda storage, loc: storage),strict=True)                
+
 
                 optimizer_name=join(weight_path,weight_file,'_opt')
                 if os.path.isfile(optimizer_name):

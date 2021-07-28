@@ -47,9 +47,9 @@ if args.gpu:
     Set_gpu()
 ###----------------------------------------
 #==============================================================
-from Dataloader_for_MT_v2 import DataLoader
-from TRANSFORMER_ASR_MT_V1 import Transformer
-from Initializing_Transformer_ASR_MT import Initialize_Att_model
+from Dataloader_for_MT_v3 import DataLoader
+#from TRANSFORMER_ASR_MT_V2 import Transformer
+from Initializing_Transformer_ASR_MT_V2 import Initialize_Att_model
 from Training_loop_ASR_MT import train_val_model
 from Load_sp_model import Load_sp_models
 #==============================================================

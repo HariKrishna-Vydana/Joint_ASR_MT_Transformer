@@ -188,10 +188,13 @@ parser.add_argument("--ASR_len_bonus",metavar='',type=float,default=1,help="len_
 parser.add_argument("--MT_len_bonus",metavar='',type=float,default=1,help="len_pen(0.5-2), len_pen maximum number of decoding steps")
 parser.add_argument("--use_Just_ASR_MT_tokens",metavar='',type=float,default=0,help="len_pen(0.5-2), len_pen maximum number of decoding steps")
 
-parser.add_argument("--finetune_with_Puncmodel",metavar='',type=float,default=0,help="flag to find to punctuvate with the model finetune_with_Puncmodel")
 
-parser.add_argument("--encoder_layers_Punc",metavar='',type=int,default=1,help="flag to find to punctuvate with the model layers")
-parser.add_argument("--decoder_layers_Punc",metavar='',type=int,default=1,help="flag to find to punctuvate with the model layers")
+
+
+
+
+
+
 
 
 

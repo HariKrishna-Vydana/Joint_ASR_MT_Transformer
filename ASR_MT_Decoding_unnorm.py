@@ -19,7 +19,7 @@ from ASR_MT_Transv1.Decoding_loop import get_Bleu_for_beam
 from ASR_MT_Transv1.Load_Encode_sp_model import Load_Encode_sp_model
 from ASR_MT_Transv1.get_best_weights import get_best_weights
 
-from ASR_MT_Transv1.Initializing_Transformer_ASR_MT import Initialize_Att_model
+from ASR_MT_Transv1.Initializing_Transformer_ASR_MT_unnorm import Initialize_Att_model
 #-----------------------------------
 
 import ASR_MT_Transv1.ASR_MT_Transformer_arg
@@ -44,29 +44,16 @@ from ASR_MT_Transv1.Load_Ens_MT_model import Load_Ens_MT_model
 Ens_MT_model,opt__=Load_Ens_MT_model(args.pre_trained_MT_weight)
 args.MT_model=Ens_MT_model
 
+
+
 from ASR_MT_Transv1.Load_Ens_ASR_model import Load_Ens_ASR_model
 Ens_ASR_model,opt__=Load_Ens_ASR_model(args.pre_trained_ASR_weight)
 args.ASR_model=Ens_ASR_model
 
-#----------------------------------------------------------------------
-####ASR_LM_model
-from Load_Trained_model import Load_Transformer_LM_model
-if args.ASR_LM_model_path!='0':
-        args.ASR_LM_model,opt__=Load_Transformer_LM_model(args.ASR_LM_model_path,SWA_random_tag=None, est_cpts=None)
-
-####MT_LM_model
-if args.MT_LM_model_path!='0': 
-        args.MT_LM_model,opt__=Load_Transformer_LM_model(args.MT_LM_model_path,SWA_random_tag=None, est_cpts=None)
-
-#----------------------------------------------------------------------
-# print(args.ASR_LM_model, args.MT_LM_model)
-# exit(0)
 
 
 
-
-
-
+#exit(0)
 if not isdir(args.model_dir):
         os.makedirs(args.model_dir)
 args.Am_weight = 1
@@ -123,11 +110,10 @@ def main():
         
         #args.gamma=0.5
         #print(job_no)
-        
-        #breakpoint()    
+            
         #####get_cer_for_beam takes a list as input
         present_path = scp_paths_decoding[job_no]
-                
+        
         Src_text_file_dict = {line.split(' ')[0]:" ".join(line.strip().split(' ')[1:]) for line in open(args.src_text_file)}
         Tgt_text_file_dict = {line.split(' ')[0]:" ".join(line.strip().split(' ')[1:]) for line in open(args.tgt_text_file)}
         
@@ -141,13 +127,12 @@ def main():
         scp_paths_decoding = present_path.split(' ')[1]
 
         
-        #if not Src_text:
-        #    print("utterance not present in source tokens something wrong",key)
-        #    #exit(0)
-        #
-        #else:
-        Src_tokens = Load_Encode_sp_model(args.Src_model_path,Src_text)
-        Tgt_tokens = Load_Encode_sp_model(args.Tgt_model_path,Tgt_text)
+        if not Src_text:
+            print("utterance not present in source tokens something wrong",key)
+            exit(0)
+        else:
+            Src_tokens = Load_Encode_sp_model(args.Src_model_path,Src_text)
+            Tgt_tokens = Load_Encode_sp_model(args.Tgt_model_path,Tgt_text)
         
         #print(scp_paths_decoding, key, Src_tokens, Src_text, Tgt_tokens, Tgt_text, model, plot_path)
         get_Bleu_for_beam(scp_paths_decoding, key, Src_tokens, Src_text, Tgt_tokens, Tgt_text, model, plot_path, args)

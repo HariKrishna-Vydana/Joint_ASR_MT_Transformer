@@ -25,7 +25,7 @@ def Stocasting_Weight_Addition(model,model_names):
 
         noof_chkpnts = len(model_names)
         present_model = model_names[0]
-        #print("Adding:",present_model)
+        print("Adding initial weights:",present_model)
         P_model_path=join(present_model)        
         model.load_state_dict(torch.load(P_model_path, map_location=lambda storage, loc: storage),strict=True)
         model_keys=model.state_dict().keys()
@@ -33,7 +33,6 @@ def Stocasting_Weight_Addition(model,model_names):
         for i in model_names[1:]:
             print("Adding:",i)
             P_model_path=join(i)
-
             new_params = torch.load(P_model_path, map_location=lambda storage, loc: storage)
             #----------------------------------------------------------------------------------------------
             ###This is for computing the sum of parameters over checkpoints
@@ -43,7 +42,6 @@ def Stocasting_Weight_Addition(model,model_names):
         ####This is for computing sum/number, it should iterate after summing all the models
         for swa_param_key in model_keys:
             model.state_dict()[swa_param_key] /= (noof_chkpnts)
-
 
         return model
 #-------------------------------------------------------------------------------------------------------------

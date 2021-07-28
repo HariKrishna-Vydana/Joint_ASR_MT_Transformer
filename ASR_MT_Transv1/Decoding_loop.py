@@ -12,10 +12,9 @@ from statistics import mean
 import json
 import kaldi_io
 
-from CMVN import CMVN
-from utils__ import plotting
-from user_defined_losses import compute_cer
-#from Decoding_loop import get_cer_for_beam
+from ASR_MT_Transv1.CMVN import CMVN
+from ASR_MT_Transv1.utils__ import plotting
+from ASR_MT_Transv1.user_defined_losses import compute_cer
 
 #=========================================================================================================================================
 def get_cer_for_beam(scp_paths_decoding,model,text_file_dict,plot_path_name,args):
@@ -107,15 +106,29 @@ def get_Bleu_for_beam(scp_paths_decoding,key,Src_tokens,Src_text,Tgt_tokens,Tgt_
     """
     #-----------------------------------
     #key,Src_tokens,Src_text,Tgt_tokens,Tgt_text, model,plot_path,args
+    #-----------------------------------
+    ##compute_cer(Labels,pred,IGnoreID)
+    #-----------------------------------
 
-    #-----------------------------------
-    #-----------------------------------
+
     ####get the model predictions
-    Output_seq = model.predict(scp_paths_decoding,args)
-    #Output_seq = model.predict(input,args.LM_model,args.Am_weight,args.beam,args.gamma,args.len_pen)
-    
-    
-    
+    ASR_MT_Output_seq = model.predict(scp_paths_decoding,args)
+    Output_seq = ASR_MT_Output_seq.get('MT_Output_dict')
+    ASR_Output_seq = ASR_MT_Output_seq.get('ASR_output_dict')
+
+    ###prining_ASR_text
+    for n,ASR_item_text in ASR_Output_seq.get('ASR_output_text_seq').items():
+        
+        ASR_item_text = ASR_item_text[0]
+        CER=compute_cer(Src_text, ASR_item_text,'doesnot_matter')*100
+        #print(n, ASR_item_text, Src_text)
+        if n==0:
+             print("ASR_nbest_output",'=',key,'=',ASR_item_text,'=',Src_text,'=',CER)
+        print("ASR_final_ouputs",'=',n,'=',key,'=',ASR_item_text,'=',CER)
+            
+
+
+
     ###get the true label if it exists
     True_label=Tgt_text
     #-----------------------------------
@@ -146,12 +159,10 @@ def get_Bleu_for_beam(scp_paths_decoding,key,Src_tokens,Src_text,Tgt_tokens,Tgt_
         #---------------------------------------------
         attention_record=seq.get('alpha_i_list','None')
 
-
         if (torch.is_tensor(attention_record)):
                 #---------------------------------------------
                 attention_record=attention_record[:,:,0].transpose(0,1)
                 attention_record = attention_record.data.cpu().numpy()
-
                 #---------------------------------------------
                 if args.plot_decoding_pics:
                         pname=str(key) +'_beam_'+str(ind)

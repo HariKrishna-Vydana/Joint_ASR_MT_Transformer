@@ -50,12 +50,13 @@ class EncoderLayer(nn.Module):
 class Encoder(nn.Module):
     """Encoder of Transformer including self-attention and feed forward. """
 
-    def __init__(self, args, MT_flag):
+    def __init__(self, args, MT_flag, Punc_flag):
         super(Encoder, self).__init__()
 
         ###use of MT_flag in encoder
 
         self.MT_flag = MT_flag
+        self.Punc_flag = Punc_flag
         #This always takes source model as input  embeding oth for speech or text input
         self.Src_model_path = args.Src_model_path if self.MT_flag else args.Src_model_path
         
@@ -63,7 +64,11 @@ class Encoder(nn.Module):
         ## it can get input from conv layers or encoder dmodel 
         #so always the dimensions is always the d_model of speech 
         self.d_input = args.encoder_dmodel
+        
         self.n_layers = args.encoder_layers_MT if self.MT_flag else args.encoder_layers
+        self.n_layers = args.encoder_layers_Punc if self.Punc_flag else self.n_layers
+        
+
         self.n_head = args.encoder_heads_MT if self.MT_flag else args.encoder_heads
         self.d_model = args.encoder_dmodel_MT if self.MT_flag else args.encoder_dmodel
         self.d_inner = args.encoder_dinner_MT if self.MT_flag else args.encoder_dinner

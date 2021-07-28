@@ -31,8 +31,8 @@ import glob
 #*************************************************************************************************************************
 ####### Loading the Parser and default arguments
 sys.path.insert(0,'/mnt/matylda3/vydana/HOW2_EXP/Joint_ASR_MT_Transformer/ASR_MT_Transv1')
-import ASR_MT_Transformer_arg
-from ASR_MT_Transformer_arg import parser
+import ASR_MT_Transformer_arg_MTtrain
+from ASR_MT_Transformer_arg_MTtrain import parser
 args = parser.parse_args()
 
 ###save architecture for decoding
@@ -77,6 +77,15 @@ def main():
                                 Src_model=Src_model,
                                 Tgt_model=Tgt_model)    
 
+        MT_train_gen = DataLoader(files=glob.glob(args.MT_data_dir + "train_splits/*"),
+                                max_batch_label_len=args.MT_max_batch_label_len,
+                                max_batch_len=args.max_batch_len,
+                                max_feat_len=args.max_feat_len,
+                                max_label_len=args.max_label_len,
+                                Src_model=Src_model,
+                                Tgt_model=Tgt_model)
+
+
         dev_gen = DataLoader(files=glob.glob(args.data_dir + "dev_splits/*"),
                                 max_batch_label_len=2000,
                                 max_batch_len=args.max_batch_len,
@@ -103,9 +112,16 @@ def main():
             model.train();
             validate_interval = int(args.validate_interval * args.accm_grad) if args.accm_grad>0 else args.validate_interval
             for trs_no in range(validate_interval):
+                #B1 = train_gen.next()
+                #assert B1 is not None, "None should never come out of the DataLoader"                
+                #B1 = train_gen.next()
+                #B2 = MT_train_gen.next()
 
-                B1 = train_gen.next()
-                assert B1 is not None, "None should never come out of the DataLoader"
+                print(B2.get('smp_Tgt_labels'),B2.get('smp_Src_labels'),B2.get('smp_Src_Text'),B2.get('smp_Tgt_Text'))
+                continue;
+                        
+
+
                 Output_trainval_dict=train_val_model(smp_no=trs_no,
                                                     args = args, 
                                                     model = model,

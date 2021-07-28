@@ -49,11 +49,13 @@ class DecoderLayer(nn.Module):
 class Decoder(nn.Module):
     ''' A decoder model with self attention mechanism. '''
 
-    def __init__(self,args,MT_flag):
+    def __init__(self,args,MT_flag, Punc_flag):
         super(Decoder, self).__init__()
         
         #------------------------------------------------------------
         self.MT_flag = MT_flag
+        self.Punc_flag = Punc_flag        
+
         self.Tgt_model_path = args.Tgt_model_path if self.MT_flag else args.Src_model_path
         print(self.Tgt_model_path)
         ####word model
@@ -72,7 +74,11 @@ class Decoder(nn.Module):
         #---------------------------------------------------------------
         # parameters
         self.d_word_vec = args.dec_embd_vec_size_MT if self.MT_flag else args.dec_embd_vec_size
+
         self.n_layers = args.decoder_layers_MT if self.MT_flag else args.decoder_layers
+        self.n_layers = args.decoder_layers_Punc if self.Punc_flag else self.n_layers        
+
+
         self.n_head = args.decoder_heads_MT    if self.MT_flag else args.decoder_heads
         self.d_model = args.decoder_dmodel_MT if self.MT_flag else args.decoder_dmodel
         self.d_inner = args.decoder_dinner_MT if self.MT_flag else args.decoder_dinner
@@ -381,8 +387,6 @@ class Decoder(nn.Module):
         char_list: list of character, args: args.beam, 
         Returns: nbest_hyps: """
         
-        #breakpoint()
-
         enc_out_len = encoder_outputs.size(1)       
         #----------------------------
         maxlen=int(enc_out_len*len_pen)

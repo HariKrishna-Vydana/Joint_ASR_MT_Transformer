@@ -9,7 +9,7 @@ from torch import optim
 sys.path.insert(0,'/mnt/matylda3/vydana/HOW2_EXP/Joint_ASR_MT_Transformer')
 
 
-from ASR_MT_Transv1.TRANSFORMER_ASR_MT_V1 import Transformer,TransformerOptimizer
+from ASR_MT_Transv1.TRANSFORMER_ASR_MT_V1_Punc import Transformer,TransformerOptimizer
 from ASR_MT_Transv1.utils__ import count_parameters
 #====================================================================================
 def Initialize_Att_model(args):
@@ -34,7 +34,12 @@ def Initialize_Att_model(args):
                 weight_file=pre_trained_weight.split('/')[-1]
                 weight_path="/".join(pre_trained_weight.split('/')[:-1])
                 enc_weight=join(weight_path,weight_file)
-                model.load_state_dict(torch.load(enc_weight, map_location=lambda storage, loc: storage),strict=True)                
+                try:        
+                        model.load_state_dict(torch.load(enc_weight, map_location=lambda storage, loc: storage),strict=True)                
+                except Exception as e:
+                   print(e)
+                   if 'RuntimeError' in str(e):
+                        model.load_state_dict(torch.load(enc_weight, map_location=lambda storage, loc: storage),strict=False)
 
                 optimizer_name=join(weight_path,weight_file,'_opt')
                 if os.path.isfile(optimizer_name):

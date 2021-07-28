@@ -66,10 +66,17 @@ class DataLoader(object):
 
         self.batch_Tgt_text=[]
         self.batch_Tgt_text_length=[]
-    
+
+
+
+        self.batch_Src_labels_tc=[]      
+        self.batch_Src_label_length_tc=[]
+
+        self.batch_Src_text_tc=[]
+        self.batch_Src_text_length_tc=[]
     #---------------------------------------------------------------------
+
     def make_batching_dict(self):
-       
         #----------------------------------------
         smp_Src_data= pad_sequences(self.batch_Src_data,maxlen=max(self.batch_Src_length),dtype='float32',padding='post',value=0.0)
         smp_Src_labels = pad_sequences(self.batch_Src_labels,maxlen=max(self.batch_Src_label_length),dtype='int32',padding='post',value=self.Src_padding_id) 
@@ -78,13 +85,24 @@ class DataLoader(object):
         smp_Src_Text = pad_sequences(self.batch_Src_text, maxlen=max(self.batch_Src_text_length),dtype=object,padding='post',value='')
         smp_Tgt_Text = pad_sequences(self.batch_Tgt_text, maxlen=max(self.batch_Tgt_text_length),dtype=object,padding='post',value='')
 
+
+        smp_Src_labels_tc = pad_sequences(self.batch_Src_labels_tc,maxlen=max(self.batch_Src_label_length_tc),dtype='int32',padding='post',value=self.Src_padding_id) 
+        smp_Src_Text_tc = pad_sequences(self.batch_Src_text_tc, maxlen=max(self.batch_Src_text_length_tc),dtype=object,padding='post',value='')
+
+
         batch_data_dict={
             'smp_names':self.batch_names,
             'smp_Src_data':smp_Src_data,
+            
             'smp_Src_labels':smp_Src_labels,
             'smp_Tgt_labels':smp_Tgt_labels,
+            
             'smp_Src_Text':smp_Src_Text,
             'smp_Tgt_Text':smp_Tgt_Text,
+            
+            'smp_Src_labels_tc':smp_Src_labels_tc,
+            'smp_Src_Text_tc':smp_Src_Text_tc,
+            
             'smp_Src_data_length':self.batch_Src_length,
             'smp_Src_label_length':self.batch_Src_label_length,
             'smp_Src_text_length':self.batch_Src_text_length,
@@ -121,10 +139,6 @@ class DataLoader(object):
                         src_text = split_lines[3] 
                         src_tok = split_lines[4] 
 
-                        if 'None' in src_tok:
-                            continue;
-
-
                         if len(src_tok)>0:
                             src_tok = [int(i) for i in src_tok.split(' ')]
                         else:
@@ -135,10 +149,7 @@ class DataLoader(object):
                         tgt_text = split_lines[5]
                         tgt_tok = split_lines[6]
                        
-                        
-                        if 'None' in tgt_tok: 
-                            continue;
-
+                         
                         if len(tgt_tok)>0:
                             tgt_tok = [int(i) for i in tgt_tok.split(' ')]
                         else:
@@ -152,9 +163,16 @@ class DataLoader(object):
                         Src_Words_Text = src_text.split(' ')
                         Tgt_Words_Text = tgt_text.split(' ')
                         #--------------------------
-                        #breakpoint()
-                        
+                        src_text_tc = split_lines[7]
+                        Src_Words_Text_tc = src_text_tc.split(' ')
 
+                        src_tok_tc = split_lines[8]
+
+
+                        if len(src_tok_tc)>0:
+                            src_tok_tc = [int(i) for i in src_tok_tc.split(' ')]
+                        else:
+                                continue;
 
 
                         #--------------------------
@@ -198,6 +216,16 @@ class DataLoader(object):
 
                         self.batch_Tgt_text.append(Tgt_Words_Text)
                         self.batch_Tgt_text_length.append(len(Tgt_Words_Text))   
+
+
+                        #--------------------------
+                        self.batch_Src_labels_tc.append(src_tok_tc)
+                        self.batch_Src_label_length_tc.append(len(src_tok_tc))
+
+                        
+                        self.batch_Src_text_tc.append(Src_Words_Text_tc)
+                        self.batch_Src_text_length_tc.append(len(Src_Words_Text_tc))
+
                         #==============================================================
                         #==============================================================
                         # total_labels_in_batch is used to keep track of the length of sequences in a batch, just make sure it does not overflow the gpu

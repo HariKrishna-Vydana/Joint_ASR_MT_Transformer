@@ -25,8 +25,8 @@ if not isdir(args.data_dir):
 
 #name_tag=str(sys.argv[1])
 
-format_tokenize_data(scp_files=glob.glob(args.train_path + "*"),transcript=args.src_text_file,Translation=args.tgt_text_file,outfile=open(join(args.data_dir,'train_scp'),'w'),Src_model_path=args.Src_model_path,Tgt_model_path=args.Tgt_model_path)
-format_tokenize_data(scp_files=glob.glob(args.dev_path + "*"),transcript=args.src_text_file,Translation=args.tgt_text_file,outfile=open(join(args.data_dir,'dev_scp'),'w'), Src_model_path=args.Src_model_path,Tgt_model_path=args.Tgt_model_path)
+format_tokenize_data(scp_files=glob.glob(args.train_path + "*"),transcript=args.src_text_file,Translation=args.tgt_text_file,outfile=open(join(args.data_dir,'train_scp'),'a'),Src_model_path=args.Src_model_path,Tgt_model_path=args.Tgt_model_path)
+format_tokenize_data(scp_files=glob.glob(args.dev_path + "*"),transcript=args.src_text_file,Translation=args.tgt_text_file,outfile=open(join(args.data_dir,'dev_scp'),'a'), Src_model_path=args.Src_model_path,Tgt_model_path=args.Tgt_model_path)
 
 
 

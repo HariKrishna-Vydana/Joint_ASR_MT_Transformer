@@ -37,24 +37,38 @@ class Transformer(nn.Module):
         self.MT_decoder = Decoder(args=args,MT_flag=True)
         #----------------------------------
     def forward(self,padded_Src_speech,padded_Src_seq,padded_Tgt_seq):
-
-        ##check ASR_MT model
         ###conv layers
         #General Transformer MT model
+        #breakpoint()
+        
+        MT_utterances = torch.sum(torch.sum(padded_Src_speech,dim=1,keepdim=True),dim=2,keepdim=True)==0
+
+        Train_only_ASR = torch.sum(padded_Tgt_seq,dim=1)==0
+        All_utt_are_ASR = torch.sum(torch.sum(padded_Tgt_seq,dim=1),dim=0)==0
+
+        ####remove loss if no MT trans is included
+        padded_Tgt_seq[Train_only_ASR] == self.MT_decoder.IGNORE_ID
+
+
         conv_padded_Src_seq = self.conv_layers(padded_Src_speech)
         encoder_padded_outputs, *_ = self.ASR_encoder(conv_padded_Src_seq)
-        #-----------------------------------------------------
-
+        encoder_padded_outputs = encoder_padded_outputs * MT_utterances * 1
         ASR_output_dict = self.ASR_decoder(padded_Src_seq, encoder_padded_outputs)
-        #print(ASR_output_dict.get('dec_output').shape)
-        
-        MT_encoder_padded_outputs, *_ = self.MT_encoder(ASR_output_dict.get('dec_output'))
-        MT_output_dict = self.MT_decoder(padded_Tgt_seq,MT_encoder_padded_outputs)
-        
-        #print(ASR_output_dict.keys(), MT_output_dict.keys())
-        #print(MT_output_dict.get('dec_output').shape)
 
-        MT_output_dict['cost'] = MT_output_dict.get('cost') + ASR_output_dict.get('cost')
+        #=================================================================================
+        if All_utt_are_ASR:
+            MT_output_dict = ASR_output_dict
+
+        else:
+
+            #print(ASR_output_dict.get('dec_output').shape)        
+            MT_encoder_padded_outputs, *_ = self.MT_encoder(ASR_output_dict.get('dec_output'))
+            MT_output_dict = self.MT_decoder(padded_Tgt_seq,MT_encoder_padded_outputs)
+
+            #print(ASR_output_dict.keys(), MT_output_dict.keys())
+            #print(MT_output_dict.get('dec_output').shape)
+            MT_output_dict['cost'] = MT_output_dict.get('cost') + ASR_output_dict.get('cost')
+
         return MT_output_dict
     #=============================================================================================================
     #=============================================================================================================
@@ -62,8 +76,7 @@ class Transformer(nn.Module):
     def predict(self,feat_path,args):
         print("went to the decoder loop")
         with torch.no_grad():
-
-
+                
                 print(feat_path) 
                 #### read feature matrices 
                 smp_feat=kaldi_io.read_mat(feat_path)
@@ -97,39 +110,14 @@ class Transformer(nn.Module):
                 #-------------------------------------------------------------
                 #-------------------------------------------------------------
 
-                #-------------------------------------------------------------
-                #breakpoint()
-                #MT_input_beam
-                dec_output=ASR_output_dict.get('dec_output')
-                ys=ASR_output_dict.get('ys')
-                score_1=ASR_output_dict.get('score_1')
-                ASR_output_text_seq=ASR_output_dict.get('ASR_output_text_seq')
-                #-------------------------------------------------------------
-
-                MT_input_beam=args.MT_input_beam
-                dec_output = dec_output[:MT_input_beam]
-                ys = ys[:MT_input_beam]
-                score_1 = score_1[:MT_input_beam]
-                ASR_output_dict={'ys':ys,'dec_output':dec_output,'score_1':score_1,'ASR_output_text_seq':ASR_output_dict.get('ASR_output_text_seq')}
-                
-                #-------------------------------------------------------------
-
-                
 
                 MT_encoder_padded_outputs, *_ = self.MT_encoder(ASR_output_dict.get('dec_output'))
                 MT_output_dict = self.MT_decoder.recognize_batch_beam_autoreg_LM_multi_hyp(ASR_output_dict, MT_encoder_padded_outputs, args.MT_beam, args.Am_weight, args.gamma, args.LM_model, args.MT_len_pen, args)
                 
 
-                #breakpoint()
                 #Picking the best
                 nbest_hyps = MT_output_dict.get('ys')
                 scoring_list = MT_output_dict.get('score_1')
-                
-
-                #nbest_hyps=nbest_hyps.view(args.MT_input_beam,args.MT_beam,-1)
-                #scoring_list=scoring_list.view(args.MT_input_beam,args.MT_beam,-1)
-                #scorint_list=torch.sum(scoring_list, dim=0)
-                #breakpoint()
                 A1,A2=torch.topk(torch.sum(scoring_list, dim=1, keepdim=True), args.MT_beam, dim=0, largest=True, sorted=True)
                 
                 nbest_hyps = nbest_hyps[A2.squeeze(0)]

@@ -5,8 +5,9 @@ import os
 from os.path import join
 
 
-sys.path.insert(0,'/mnt/matylda3/vydana/HOW2_EXP/MT_Transformer/MT_TransV1')
-from Load_sp_model import Load_sp_models
+sys.path.insert(0,'/mnt/matylda3/vydana/HOW2_EXP/MT_Transformer')
+from MT_TransV1.Load_sp_model import Load_sp_models
+
 text_dlim=' @@@@ '
 #=================================================================
 def Search_for_utt(query, search_file,SPmodel):
@@ -37,8 +38,6 @@ def Search_for_utt(query, search_file,SPmodel):
                         utt_text = utt_text + text_dlim + tokens_utt_text + text_dlim
                         return utt_text
 #================================================================
-
-
 #output_file='Timit_text_like_MT'
 #scp_file='/mnt/matylda3/vydana/benchmarking_datasets/Timit/scp_files/train/sorted_feats_pdnn_train_scp'
 #transcript='/mnt/matylda3/vydana/benchmarking_datasets/Timit/All_text'

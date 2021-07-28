@@ -24,7 +24,7 @@ sys.path.insert(0,'/mnt/matylda3/vydana/HOW2_EXP/Joint_ASR_MT_Transformer/ASR_MT
 
 
 
-def Load_Transformer_ASR_MT_model(model_dir, SWA_random_tag, est_cpts=None):
+def Load_Transformer_ASR_MT_model(model_dir, SWA_random_tag, est_cpts=None,ignore_cpts=0):
         print(model_dir, SWA_random_tag)
         #=================================================================
 
@@ -54,7 +54,7 @@ def Load_Transformer_ASR_MT_model(model_dir, SWA_random_tag, est_cpts=None):
         args.SWA_random_tag = SWA_random_tag
         ###make SWA name 
         model_name = str(args.model_dir).split('/')[-1]
-        ct=model_name+'_SWA_random_tag_'+str(args.SWA_random_tag) + '_args_ealystpping_checkpoints_'+str(args.early_stopping_checkpoints)
+        ct=model_name+'_SWA_random_tag_'+str(args.SWA_random_tag) + '_args_ealystpping_checkpoints_'+str(args.early_stopping_checkpoints)+"_ignore_cpts_"+str(ignore_cpts)
 
         if not isfile(join(args.model_dir,ct)):
                 args.gpu=0
@@ -62,9 +62,11 @@ def Load_Transformer_ASR_MT_model(model_dir, SWA_random_tag, est_cpts=None):
                 model,optimizer=Initialize_Trans_model(args)
                 ##check the Weight averaged file and if the file does not exist then lcreate them
                 ## if the file exists load them
+
                 model_names,checkpoint_ter = get_best_weights(args.weight_text_file, args.Res_text_file)
-                model_names_checkpoints=model_names[:args.early_stopping_checkpoints]
-                swa_files=model_name+'_SWA_random_tag_weight_files_'+str(args.SWA_random_tag) + '_args_ealystpping_checkpoints_'+str(args.early_stopping_checkpoints)
+                model_names_checkpoints=model_names[ignore_cpts:ignore_cpts+args.early_stopping_checkpoints]
+
+                swa_files=model_name+'_SWA_random_tag_weight_files_'+str(args.SWA_random_tag) + '_args_ealystpping_checkpoints_'+str(args.early_stopping_checkpoints)+"_ignore_cpts_"+str(ignore_cpts)
                 outfile=join(args.model_dir,swa_files)
                 #-----------
                 with open(outfile,'a+') as outfile:

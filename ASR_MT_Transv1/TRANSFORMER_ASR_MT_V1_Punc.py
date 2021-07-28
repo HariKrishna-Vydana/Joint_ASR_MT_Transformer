@@ -20,8 +20,8 @@ import sys
 sys.path.insert(0,'/mnt/matylda3/vydana/HOW2_EXP/Joint_ASR_MT_Transformer')
 from ASR_MT_Transv1.CMVN import CMVN
 from ASR_MT_Transv1.Trans_conv_layers import Conv_2D_Layers
-from ASR_MT_Transv1.Trans_Decoder import Decoder
-from ASR_MT_Transv1.Trans_Encoder import Encoder
+from ASR_MT_Transv1.Trans_Decoder_punc import Decoder
+from ASR_MT_Transv1.Trans_Encoder_punc import Encoder
 #--------------------------------------------------------------------------
 class Transformer(nn.Module):
     """An encoder-decoder framework only includes attention. """
@@ -29,32 +29,49 @@ class Transformer(nn.Module):
         super(Transformer, self).__init__()   
         "Defines the Joint ASR-MT training model, MT_flag is False if the model uses speech input and MT_flag True if the model"
         #breakpoint()
+        Punc_flag=args.finetune_with_Puncmodel
+
         self.conv_layers = Conv_2D_Layers(args)
-        self.ASR_encoder = Encoder(args=args,MT_flag=False)
-        self.ASR_decoder = Decoder(args=args,MT_flag=False)
+        self.ASR_encoder = Encoder(args=args,MT_flag=False,Punc_flag=False)
+        self.ASR_decoder = Decoder(args=args,MT_flag=False,Punc_flag=False)
+        
+        self.Punc_encoder = Encoder(args=args, MT_flag=True, Punc_flag=Punc_flag)
+        self.Punc_decoder = Decoder(args=args, MT_flag=True, Punc_flag=Punc_flag)
 
-        self.MT_encoder = Encoder(args=args,MT_flag=True)
-        self.MT_decoder = Decoder(args=args,MT_flag=True)
+        self.MT_encoder = Encoder(args=args,MT_flag=True,Punc_flag=False)
+        self.MT_decoder = Decoder(args=args,MT_flag=True,Punc_flag=False)
+        
+
         #----------------------------------
-    def forward(self,padded_Src_speech,padded_Src_seq,padded_Tgt_seq):
-
+    def forward(self,padded_Src_speech,padded_Src_seq,padded_Tgt_seq,padded_Src_seq_tc):
+        #breakpoint()
         ##check ASR_MT model
         ###conv layers
+        padded_Src_seq_tc=padded_Src_seq_tc
         #General Transformer MT model
         conv_padded_Src_seq = self.conv_layers(padded_Src_speech)
+
         encoder_padded_outputs, *_ = self.ASR_encoder(conv_padded_Src_seq)
+        ASR_output_dict = self.ASR_decoder(padded_Src_seq, encoder_padded_outputs)
         #-----------------------------------------------------
 
-        ASR_output_dict = self.ASR_decoder(padded_Src_seq, encoder_padded_outputs)
+        ##
+        ## Punc model
+        Punc_encoder_padded_outputs, *_= self.Punc_encoder(ASR_output_dict.get('dec_output'))
+        Punc_output_dict = self.Punc_decoder(padded_Src_seq_tc, Punc_encoder_padded_outputs)
+
+
+        #-----------------------------------------------------
         #print(ASR_output_dict.get('dec_output').shape)
-        
-        MT_encoder_padded_outputs, *_ = self.MT_encoder(ASR_output_dict.get('dec_output'))
+        ##   MT model
+        MT_encoder_padded_outputs, *_ = self.MT_encoder(Punc_output_dict.get('dec_output'))
         MT_output_dict = self.MT_decoder(padded_Tgt_seq,MT_encoder_padded_outputs)
         
         #print(ASR_output_dict.keys(), MT_output_dict.keys())
         #print(MT_output_dict.get('dec_output').shape)
 
-        MT_output_dict['cost'] = MT_output_dict.get('cost') + ASR_output_dict.get('cost')
+        #breakpoint()
+        MT_output_dict['cost'] = MT_output_dict.get('cost') + ASR_output_dict.get('cost') + Punc_output_dict.get('cost')
         return MT_output_dict
     #=============================================================================================================
     #=============================================================================================================

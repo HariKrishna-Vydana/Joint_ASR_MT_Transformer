@@ -3,7 +3,6 @@
 import numpy as np
 import torch
 
-
 #=============================================================================================================
 #-------------------------------------------------------------------------------------------------------------
 def get_decoder_non_pad_mask(padded_input, pad_idx=0):
@@ -16,9 +15,9 @@ def get_decoder_non_pad_mask(padded_input, pad_idx=0):
 #=============================================================================================================
 #-------------------------------------------------------------------------------------------------------------
 def get_encoder_non_pad_mask(padded_input, input_lengths):
-    """padding position is set to 0, either use input_lengths or pad_idx
+    """padding position is set to 0, either use input_lengths or pad_idx 
     """
-    # padded_input: N x T x ..
+    #padded_input: N x T x ..
 
     N = padded_input.size(0)
     non_pad_mask = padded_input.new_ones(padded_input.size()[:-1])  # N x T
@@ -29,12 +28,11 @@ def get_encoder_non_pad_mask(padded_input, input_lengths):
 #=============================================================================================================
 #-------------------------------------------------------------------------------------------------------------
 def get_attn_pad_mask(padded_input, input_lengths, expand_length):
-    """mask position is set to 1"""
-    # N x Ti x 1
-    
+    """mask position is set to 1"""  # N x Ti x 1
+
     non_pad_mask = get_encoder_non_pad_mask(padded_input, input_lengths=input_lengths)
-    
     # N x Ti, lt(1) like not operation
+
     pad_mask = non_pad_mask.squeeze(-1).lt(1)
     attn_mask = pad_mask.unsqueeze(1).expand(-1, expand_length, -1)
     return attn_mask
@@ -50,14 +48,11 @@ def get_attn_pad_mask_encoder(padded_input, input_lengths, expand_length):
     return attn_mask
 #=============================================================================================================
 #-------------------------------------------------------------------------------------------------------------
-
-
 def get_subsequent_mask(seq):
     ''' For masking out the subsequent info. '''
     sz_b, len_s = seq.size()
     subsequent_mask = torch.tril(torch.ones((len_s, len_s), device=seq.device, dtype=torch.uint8))
     subsequent_mask = subsequent_mask.unsqueeze(0).expand(sz_b, -1, -1)  # b x ls x ls
-
     return subsequent_mask
 #=============================================================================================================
 #-------------------------------------------------------------------------------------------------------------
@@ -69,10 +64,8 @@ def get_attn_key_pad_mask(seq_k, seq_q, pad_idx):
     padding_mask = seq_k.eq(pad_idx)
     padding_mask = padding_mask.unsqueeze(1).expand(-1, len_q, -1)  # b x lq x lk
     return padding_mask
-
 #=============================================================================================================
 #-------------------------------------------------------------------------------------------------------------
-
 def pad_list(xs, pad_value):
     # From: espnet/src/nets/e2e_asr_th.py: pad_list()
     n_batch = len(xs)
@@ -81,7 +74,6 @@ def pad_list(xs, pad_value):
     for i in range(n_batch):
         pad[i, :xs[i].size(0)] = xs[i]
     return pad
-
 #-------------------------------------------------------------------------------------------------------------
 #============================================================================================
 def get_non_pad_mask(padded_input, input_lengths=None, pad_idx=None):
